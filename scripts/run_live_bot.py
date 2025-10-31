@@ -176,7 +176,7 @@ class SimpleTradingBot:
         else:
             print("   ❌ Trade cancelled")
     
-    def run(self):
+    def run(self, check_interval_seconds=20):
         """Main trading loop"""
         
         print("🚀 SOL TRADING BOT - LIVE MODE")
@@ -190,14 +190,15 @@ class SimpleTradingBot:
         print(f"   Current SOL Price: ${current_price:.2f}")
         print(f"   SOL Value: ${sol_balance * current_price:.2f}")
         
-        print(f"\n📊 Trading Parameters:")
+        print("\n📊 Trading Parameters:")
         print(f"   Buy on dip: {self.buy_dip_pct}%")
         print(f"   Sell on rise: {self.sell_rise_pct}%")
         print(f"   Stop loss: {self.stop_loss_pct}%")
         print(f"   Position size: ${self.position_size_usd}")
         print(f"   Max daily trades: {self.max_daily_trades}")
+        print(f"   Check interval: {check_interval_seconds} seconds")
         
-        print(f"\n🔴 MONITORING STARTED - Press Ctrl+C to stop")
+        print("\n🔴 MONITORING STARTED - Press Ctrl+C to stop")
         print("=" * 70)
         
         iteration = 0
@@ -253,8 +254,8 @@ class SimpleTradingBot:
                     pass  # Not in Docker, ignore
                 
                 # Wait before next check
-                print("   ⏳ Next check in 20 seconds...")
-                time.sleep(20)
+                print(f"   ⏳ Next check in {check_interval_seconds} seconds...")
+                time.sleep(check_interval_seconds)
                 
         except KeyboardInterrupt:
             print("\n\n🛑 Bot stopped by user")
@@ -273,13 +274,16 @@ def main():
     rpc_url = os.getenv("RPC_URL")
     wallet_key = os.getenv("WALLET_PRIVATE_KEY_JSON")
     
+    # Get check interval from .env (default: 20 seconds)
+    check_interval = int(os.getenv("CHECK_INTERVAL_SECONDS", "20"))
+    
     wallet = WalletManager(rpc_url=rpc_url)
     wallet.load_keypair_from_json_array(wallet_key)
     
     dex = LivePriceOrcaClient()
     
     bot = SimpleTradingBot(wallet, dex)
-    bot.run()
+    bot.run(check_interval_seconds=check_interval)
 
 
 if __name__ == "__main__":
