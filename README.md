@@ -1,99 +1,99 @@
 # 🚀 Solana SOL Trading Bot (2025)
 
-**בוט מסחר אוטומטי לסולנה** עם מחירים חיים, אסטרטגיית קנה-נמוך-מכור-גבוה, ותמיכה ב-Docker.
+**Automated Solana trading bot** with live pricing, buy-low-sell-high strategy, and Docker support.
 
-## ⚡ התחלה מהירה
+## ⚡ Quick Start
 
-### אופציה 1: הפעלה רגילה
+### Option 1: Standard Run
 ```powershell
-# 1. הגדר .env
+# 1. Setup .env
 Copy-Item .env.example .env
-# ערוך .env עם QuickNode RPC + Solflare wallet
+# Edit .env with your QuickNode RPC + Solflare wallet
 
-# 2. הפעל
+# 2. Run
 python .\scripts\run_live_bot.py
 ```
 
-### אופציה 2: Docker (מומלץ) 🐋
+### Option 2: Docker (Recommended) 🐋
 ```powershell
-# 1. ודא שDocker Desktop רץ
-# 2. הרץ
+# 1. Ensure Docker Desktop is running
+# 2. Run
 .\docker_start.ps1
 ```
 
-📖 **למדריך מפורט:** ראה [SETUP.md](SETUP.md) או [DOCKER_README.md](DOCKER_README.md)
+📖 **For detailed guide:** See [SETUP.md](SETUP.md) or [DOCKER_README.md](DOCKER_README.md)
 
 ---
 
-## 📦 מה כלול בפרויקט
+## 📦 What's Included
 
-### 🎯 **קוד ליבה:**
-- `backend/core/wallet_manager.py` — ניהול ארנק Solflare + חתימת טרנזקציות
-- `backend/core/dynamic_price_feed.py` — **מחירים חיים** מ-Binance/CoinGecko (לא cache!)
-- `backend/core/orca_client.py` — אינטגרציה עם Orca DEX
-- `backend/core/price_monitor.py` — זיהוי סיגנלים (volume spikes, momentum)
-- `scripts/run_live_bot.py` — **הבוט הראשי** - בדיקה כל 20 שניות
+### 🎯 **Core Code:**
+- `backend/core/wallet_manager.py` — Solflare wallet management + transaction signing
+- `backend/core/dynamic_price_feed.py` — **Live prices** from Binance/CoinGecko (no caching!)
+- `backend/core/orca_client.py` — Orca DEX integration
+- `backend/core/price_monitor.py` — Signal detection (volume spikes, momentum)
+- `scripts/run_live_bot.py` — **Main bot** - checks every 20 seconds
 
 ### 🐋 **Docker:**
-- `Dockerfile` — הגדרת קונטיינר
-- `docker-compose.yml` — תזמון הרצה
-- `docker_start.ps1` / `docker_stop.ps1` — סקריפטי ניהול
+- `Dockerfile` — Container definition
+- `docker-compose.yml` — Orchestration
+- `docker_start.ps1` / `docker_stop.ps1` — Management scripts
 
-### 📚 **תיעוד:**
-- `SETUP.md` — הגדרת QuickNode + Solflare
-- `DOCKER_README.md` — הפעלה עם Docker (מדריך מהיר)
-- `DOCKER_GUIDE.md` — Docker מתקדם
-- `HOW_TO_RUN.md` — כל דרכי ההפעלה
-- `CRITICAL_FIXES_2025.md` — תיקונים חשובים ל-solana-py 2025
+### 📚 **Documentation:**
+- `SETUP.md` — QuickNode + Solflare setup
+- `DOCKER_README.md` — Quick Docker guide
+- `DOCKER_GUIDE.md` — Advanced Docker
+- `HOW_TO_RUN.md` — All run methods
+- `CRITICAL_FIXES_2025.md` — Important solana-py 2025 fixes
 
-### ⚙️ **הגדרות:**
-- `.env.example` — תבנית להגדרות (העתק ל-`.env`)
-- `requirements.txt` — תלויות Python
-- `.gitignore` — הגנה מפני commit של סודות
-
----
-
-## 🎯 איך זה עובד?
-
-הבוט מריץ אסטרטגיה פשוטה אבל יעילה:
-
-```
-1. 🔄 מושך מחיר חי של SOL כל 20 שניות
-2. 📊 משווה למחירים האחרונים (30 דקות)
-3. 📉 קנייה: אם המחיר ירד 2% מהשיא
-4. 📈 מכירה: אם המחיר עלה 2% מהקנייה
-5. 🛑 Stop Loss: אם המחיר ירד 5% מהקנייה
-```
-
-### 💡 **דוגמה:**
-```
-שיא אחרון: $200
-מחיר נוכחי: $196 (ירידה של 2%)
-→ 🟢 קנה 1 SOL ב-$196
-
-מחיר עלה ל-$200 (עלייה של 2%)
-→ 🔴 מכור 1 SOL ב-$200
-
-רווח: $4 💰
-```
+### ⚙️ **Configuration:**
+- `.env.example` — Configuration template (copy to `.env`)
+- `requirements.txt` — Python dependencies
+- `.gitignore` — Protects secrets from Git
 
 ---
 
-## 📊 פרמטרים
+## 🎯 How It Works
 
-ניתן לשנות ב-`scripts/run_live_bot.py`:
+The bot runs a simple but effective strategy:
 
-```python
-self.buy_dip_pct = 2.0           # אחוז ירידה לקנייה
-self.sell_rise_pct = 2.0         # אחוז עלייה למכירה  
-self.stop_loss_pct = 5.0         # Stop loss
-self.position_size_usd = 5.0     # גודל עסקה ($5)
-self.max_daily_trades = 10       # מקס' עסקאות ביום
+```
+1. 🔄 Fetches live SOL price every 20 seconds
+2. 📊 Compares with recent prices (30 minutes)
+3. 📉 Buy: If price drops 2% from recent high
+4. 📈 Sell: If price rises 2% from entry
+5. 🛑 Stop Loss: If price drops 5% from entry
 ```
 
-זמן בדיקה:
+### 💡 **Example:**
+```
+Recent high: $200
+Current price: $196 (2% drop)
+→ 🟢 Buy 1 SOL at $196
+
+Price rises to $200 (2% gain)
+→ 🔴 Sell 1 SOL at $200
+
+Profit: $4 💰
+```
+
+---
+
+## 📊 Parameters
+
+Customizable in `scripts/run_live_bot.py`:
+
 ```python
-time.sleep(20)  # כל 20 שניות (שנה ל-30, 60, וכו')
+self.buy_dip_pct = 2.0           # Buy on 2% dip
+self.sell_rise_pct = 2.0         # Sell on 2% rise  
+self.stop_loss_pct = 5.0         # Stop loss at 5%
+self.position_size_usd = 5.0     # Trade size ($5)
+self.max_daily_trades = 10       # Max trades per day
+```
+
+Check interval:
+```python
+time.sleep(20)  # Every 20 seconds (change to 30, 60, etc.)
 ```
 
 ---
@@ -102,123 +102,126 @@ time.sleep(20)  # כל 20 שניות (שנה ל-30, 60, וכו')
 
 ---
 
-## ⚠️ אזהרות חשובות!
+## ⚠️ Important Warnings!
 
-### 🔴 **הבוט כרגע ב-SIMULATION MODE**
-- הוא **לא מבצע עסקאות אמיתיות**
-- הוא רק **מראה** מה הוא היה עושה
-- בטוח ללמידה ובדיקה
+### 🔴 **Bot is Currently in SIMULATION MODE**
+- Does **NOT execute real trades**
+- Only **shows** what it would do
+- Safe for learning and testing
 
-### 🔐 **אבטחה:**
-- ✅ **השתמש בארנק TEST בלבד** - לא הארנק הראשי שלך!
-- ✅ גבה את ה-Recovery Phrase במקום בטוח
-- ✅ **לעולם אל תשתף** את קובץ ה-`.env`
-- ✅ בדוק שה-`.env` ב-`.gitignore` לפני commit
+### 🔐 **Security:**
+- ✅ **Use TEST wallet ONLY** - not your main wallet!
+- ✅ Backup your Recovery Phrase in a safe place
+- ✅ **NEVER share** your `.env` file
+- ✅ Verify `.env` is in `.gitignore` before commits
 
-### 💰 **סיכונים:**
-- מסחר בקריפטו מסוכן - אפשר להפסיד כסף
-- התחל עם סכומים **קטנים מאוד** ($1-5)
-- בדוק את הלוגים **כל יום**
-- אל תשקיע מה שאתה לא יכול להפסיד
+### 💰 **Risks:**
+- Crypto trading is risky - you can lose money
+- Start with **very small amounts** ($1-5)
+- Check logs **daily**
+- Don't invest what you can't afford to lose
 
 ---
 
-## 🛠️ פתרון בעיות
+## 🛠️ Troubleshooting
 
-### הבוט לא מתחיל:
+### Bot won't start:
 ```powershell
-# בדוק Python
-python --version  # צריך 3.10+
+# Check Python version
+python --version  # Need 3.10+
 
-# בדוק dependencies
+# Check dependencies
 pip list
 
-# בדוק .env
+# Verify .env exists
 Test-Path .env
 ```
 
-### שגיאת RPC:
-- בדוק שה-QuickNode endpoint נכון
-- נסה לגשת אליו בדפדפן (אמור להחזיר JSON)
+### RPC error:
+- Verify QuickNode endpoint is correct
+- Try accessing it in a browser (should return JSON)
 
-### שגיאת Wallet:
-- בדוק ש-WALLET_PRIVATE_KEY_JSON מכיל 64 מספרים
-- בדוק שאין רווחים או תווים מוזרים
+### Wallet error:
+- Check WALLET_PRIVATE_KEY_JSON has 64 numbers
+- Ensure no spaces or weird characters
 
-### Docker לא עובד:
+### Docker not working:
 ```powershell
-# בדוק שDocker רץ
+# Check Docker is running
 docker version
 
-# בדוק לוגים
+# Check logs
 docker-compose logs
 ```
 
 ---
 
-## 📚 תיעוד נוסף
+## 📚 Additional Documentation
 
-| קובץ | תיאור |
-|------|--------|
-| [SETUP.md](SETUP.md) | הגדרת QuickNode + Solflare (צעד אחר צעד) |
-| [DOCKER_README.md](DOCKER_README.md) | הפעלה עם Docker - מדריך מהיר |
-| [DOCKER_GUIDE.md](DOCKER_GUIDE.md) | Docker מתקדם - כל הפקודות |
-| [HOW_TO_RUN.md](HOW_TO_RUN.md) | כל דרכי ההפעלה (ידני, ברקע, Task Scheduler) |
-| [CRITICAL_FIXES_2025.md](CRITICAL_FIXES_2025.md) | תיקונים חשובים ל-solana-py 2025 |
+| File | Description |
+|------|-------------|
+| [SETUP.md](SETUP.md) | QuickNode + Solflare setup (step-by-step) |
+| [DOCKER_README.md](DOCKER_README.md) | Docker quick start guide |
+| [DOCKER_GUIDE.md](DOCKER_GUIDE.md) | Advanced Docker - all commands |
+| [HOW_TO_RUN.md](HOW_TO_RUN.md) | All run methods (manual, background, Task Scheduler) |
+| [CRITICAL_FIXES_2025.md](CRITICAL_FIXES_2025.md) | Important solana-py 2025 fixes |
+| [DEX_ARCHITECTURE.md](DEX_ARCHITECTURE.md) | How price feeds and DEX execution work |
 
 ---
 
 ## 🎯 Roadmap
 
-- [x] מחירים דינמיים בזמן אמת
-- [x] אסטרטגיית קנה-נמוך-מכור-גבוה
-- [x] תמיכה ב-Docker
-- [x] Health checks אוטומטיים
-- [ ] ביצוע עסקאות אמיתיות (מצריך הפעלה ידנית)
-- [ ] תמיכה ב-multiple pairs (SOL/USDC, SOL/USDT)
+- [x] Dynamic real-time pricing
+- [x] Buy-low-sell-high strategy
+- [x] Docker support
+- [x] Automatic health checks
+- [ ] Real trade execution (requires manual activation)
+- [ ] Multiple pairs support (SOL/USDC, SOL/USDT)
 - [ ] Telegram notifications
 - [ ] Web dashboard
 
 ---
 
-## 🤝 תרומה
+## 🤝 Contributing
 
-רוצה לשפר? Pull Requests מתקבלים בברכה!
+Want to improve? Pull Requests are welcome!
 
-1. Fork את הפרויקט
-2. צור branch חדש (`git checkout -b feature/amazing`)
-3. Commit את השינויים (`git commit -m 'Add amazing feature'`)
+1. Fork the project
+2. Create a new branch (`git checkout -b feature/amazing`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push (`git push origin feature/amazing`)
-5. פתח Pull Request
+5. Open a Pull Request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ---
 
 ## 📄 License
 
-MIT License - השתמש על אחריותך בלבד.
+MIT License - Use at your own risk.
 
 ---
 
-## ⚡ מהירות התחלה
+## ⚡ Quick Start Commands
 
 ```powershell
 # Clone
-git clone <repo-url>
-cd Solana_autotrade
+git clone https://github.com/idanvn/Solana-autotrade.git
+cd Solana-autotrade
 
 # Setup
 Copy-Item .env.example .env
-# ערוך .env
+# Edit .env with your credentials
 
 # Run
 python .\scripts\run_live_bot.py
 
-# או עם Docker
+# Or with Docker
 .\docker_start.ps1
 ```
 
 ---
 
-**בהצלחה במסחר! 🚀💰**
+**Happy trading! 🚀💰**
 
-> ⚠️ **Disclaimer:** פרויקט זה למטרות חינוכיות בלבד. מסחר בקריפטו מסוכן ואתה אחראי לפעולות שלך. תמיד עשה מחקר משלך (DYOR).
+> ⚠️ **Disclaimer:** This project is for educational purposes only. Crypto trading is risky and you are responsible for your actions. Always do your own research (DYOR).
