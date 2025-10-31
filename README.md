@@ -98,10 +98,6 @@ time.sleep(20)  # Every 20 seconds (change to 30, 60, etc.)
 
 ---
 
-## ⚠️ אזהרות חשובות!
-
----
-
 ## ⚠️ Important Warnings!
 
 ### 🔴 **Bot is Currently in SIMULATION MODE**
