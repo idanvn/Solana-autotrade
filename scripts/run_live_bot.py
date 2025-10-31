@@ -6,6 +6,7 @@ Monitors SOL price and executes trades based on price movements
 import os
 import sys
 import time
+import requests
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -17,12 +18,78 @@ from core.wallet_manager import WalletManager
 from core.dynamic_price_feed import LivePriceOrcaClient
 
 
+def send_discord_notification(webhook_url, trade_type, sol_amount, price, details):
+    """
+    Send trading notification to Discord webhook
+    
+    Args:
+        webhook_url: Discord webhook URL
+        trade_type: "BUY" or "SELL"
+        sol_amount: Amount of SOL traded
+        price: Price per SOL
+        details: Additional details (profit, reason, etc.)
+    """
+    if not webhook_url:
+        return  # Skip if webhook not configured
+    
+    # Choose color based on trade type
+    color = 0x00FF00 if trade_type == "BUY" else 0xFF0000  # Green for buy, Red for sell
+    emoji = "🟢" if trade_type == "BUY" else "🔴"
+    
+    total_value = sol_amount * price
+    
+    embed = {
+        "title": f"{emoji} {trade_type} SIGNAL EXECUTED",
+        "color": color,
+        "fields": [
+            {
+                "name": "Amount",
+                "value": f"{sol_amount:.6f} SOL",
+                "inline": True
+            },
+            {
+                "name": "Price",
+                "value": f"${price:.2f}",
+                "inline": True
+            },
+            {
+                "name": "Total Value",
+                "value": f"${total_value:.2f}",
+                "inline": True
+            },
+            {
+                "name": "Details",
+                "value": details,
+                "inline": False
+            }
+        ],
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "footer": {
+            "text": "SOL Trading Bot"
+        }
+    }
+    
+    payload = {
+        "embeds": [embed]
+    }
+    
+    try:
+        response = requests.post(webhook_url, json=payload, timeout=10)
+        if response.status_code == 204:
+            print(f"   ✅ Discord notification sent")
+        else:
+            print(f"   ⚠️ Discord notification failed: {response.status_code}")
+    except Exception as e:
+        print(f"   ⚠️ Discord notification error: {str(e)}")
+
+
 class SimpleTradingBot:
     """Simple SOL trading bot with dynamic pricing"""
     
-    def __init__(self, wallet_manager, dex_client):
+    def __init__(self, wallet_manager, dex_client, discord_webhook=None):
         self.wallet = wallet_manager
         self.dex = dex_client
+        self.discord_webhook = discord_webhook
         
         # Trading parameters
         self.buy_dip_pct = 2.0          # Buy when price drops 2%
@@ -139,6 +206,21 @@ class SimpleTradingBot:
             self.trades_today += 1
             
             print(f"   ✅ Position opened: {sol_amount:.6f} SOL @ ${current_price:.2f}")
+            
+            # Send Discord notification
+            recent_high = self.get_recent_high()
+            drop_pct = ((recent_high - current_price) / recent_high) * 100 if recent_high else 0
+            details = f"Price dropped {drop_pct:.2f}% from ${recent_high:.2f}\n"
+            details += f"Entry: ${current_price:.2f}\n"
+            details += f"Position size: ${self.position_size_usd:.2f} USDC"
+            
+            send_discord_notification(
+                self.discord_webhook,
+                "BUY",
+                sol_amount,
+                current_price,
+                details
+            )
         else:
             print("   ❌ Trade cancelled")
     
@@ -173,6 +255,21 @@ class SimpleTradingBot:
             self.position = None
             
             print(f"   ✅ Position closed. P&L: ${profit:+.2f}")
+            
+            # Send Discord notification
+            details = f"Entry: ${entry_price:.2f}\n"
+            details += f"Exit: ${current_price:.2f}\n"
+            details += f"Profit: ${profit:+.2f} ({profit_pct:+.2f}%)\n"
+            details += f"Received: ${usdc_received:.2f} USDC\n"
+            details += f"Total P&L today: ${self.total_pnl:+.2f}"
+            
+            send_discord_notification(
+                self.discord_webhook,
+                "SELL",
+                sol_amount,
+                current_price,
+                details
+            )
         else:
             print("   ❌ Trade cancelled")
     
@@ -273,6 +370,7 @@ def main():
     load_dotenv()
     rpc_url = os.getenv("RPC_URL")
     wallet_key = os.getenv("WALLET_PRIVATE_KEY_JSON")
+    discord_webhook = os.getenv("DISCORD_WEBHOOK_URL")
     
     # Get check interval from .env (default: 20 seconds)
     check_interval = int(os.getenv("CHECK_INTERVAL_SECONDS", "20"))
@@ -282,7 +380,7 @@ def main():
     
     dex = LivePriceOrcaClient()
     
-    bot = SimpleTradingBot(wallet, dex)
+    bot = SimpleTradingBot(wallet, dex, discord_webhook=discord_webhook)
     bot.run(check_interval_seconds=check_interval)
 
 

@@ -44,6 +44,7 @@ python .\scripts\run_live_bot.py
 - `DOCKER_README.md` — Quick Docker guide
 - `DOCKER_GUIDE.md` — Advanced Docker
 - `HOW_TO_RUN.md` — All run methods
+- `DISCORD_NOTIFICATIONS.md` — 🔔 Discord alerts setup
 - `CRITICAL_FIXES_2025.md` — Important solana-py 2025 fixes
 
 ### ⚙️ **Configuration:**
@@ -63,6 +64,7 @@ The bot runs a simple but effective strategy:
 3. 📉 Buy: If price drops 2% from recent high
 4. 📈 Sell: If price rises 2% from entry
 5. 🛑 Stop Loss: If price drops 5% from entry
+6. 🔔 Discord: Sends notification on each trade (optional)
 ```
 
 ### 💡 **Example:**
@@ -81,7 +83,17 @@ Profit: $4 💰
 
 ## 📊 Parameters
 
-Customizable in `scripts/run_live_bot.py`:
+Customizable in `.env` file:
+
+```bash
+# Trading bot check interval (seconds)
+CHECK_INTERVAL_SECONDS=20
+
+# Discord notifications (optional)
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_TOKEN
+```
+
+Trading parameters in `scripts/run_live_bot.py`:
 
 ```python
 self.buy_dip_pct = 2.0           # Buy on 2% dip
@@ -91,10 +103,7 @@ self.position_size_usd = 5.0     # Trade size ($5)
 self.max_daily_trades = 10       # Max trades per day
 ```
 
-Check interval:
-```python
-time.sleep(20)  # Every 20 seconds (change to 30, 60, etc.)
-```
+📖 **For Discord setup:** See [DISCORD_NOTIFICATIONS.md](DISCORD_NOTIFICATIONS.md)
 
 ---
 
