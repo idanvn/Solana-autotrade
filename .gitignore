@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+*.egg-info/
+
+# Environment variables (CRITICAL - contains private keys!)
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+bot_log.txt*
+bot_pid.txt
+
+# Data
+data/
+backup*/
+
+# Docker volumes
+docker_data/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build
+dist/
+build/

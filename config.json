@@ -1,0 +1,12 @@
+{
+  "slippage_bps": 50,
+  "risk": {
+    "max_positions": 2,
+    "stake_sol": 0.3,
+    "daily_loss_cap_sol": 1.0
+  },
+  "tokens": {
+    "SOL": "So11111111111111111111111111111111111111112",
+    "USDC": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+  }
+}
